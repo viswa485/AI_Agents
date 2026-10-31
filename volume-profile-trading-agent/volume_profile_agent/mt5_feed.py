@@ -15,21 +15,27 @@ class MT5HistoricalFeed:
     def ensure_symbol(self,symbol):
         if not self.connected: raise RuntimeError("Connect before checking symbols")
         info=self.mt5.symbol_info(symbol)
-        if info is None: raise ValueError(f"MT5 symbol not found: {symbol}. Check Market Watch for exact OANDA suffix.")
+        if info is None:
+            raise ValueError(f"MT5 symbol not found: {symbol}. Confirm exact spelling in Market Watch.")
         if not info.visible and not self.mt5.symbol_select(symbol,True):
             raise RuntimeError(f"Unable to select {symbol} in MT5: {self.mt5.last_error()}")
         return {"name":info.name,"description":info.description,"digits":info.digits,
                 "point":info.point,"trade_tick_size":info.trade_tick_size,
                 "trade_tick_value":info.trade_tick_value,"volume_min":info.volume_min,
-                "volume_max":info.volume_max,"volume_step":info.volume_step}
+                "volume_max":info.volume_max,"volume_step":info.volume_step,
+                "currency_base":getattr(info,"currency_base",None),
+                "currency_profit":getattr(info,"currency_profit",None),
+                "currency_margin":getattr(info,"currency_margin",None)}
     def fetch_rates(self,symbol,timeframe,start:datetime,end:datetime):
-        if not self.connected: raise RuntimeError("Call connect first")
-        if start.tzinfo is None or end.tzinfo is None or end<=start: raise ValueError("Use ordered timezone-aware datetimes")
+        if not self.connected: raise RuntimeError("Call connect before fetch_rates")
+        if start.tzinfo is None or end.tzinfo is None or end<=start:
+            raise ValueError("Use ordered timezone-aware datetimes")
         self.ensure_symbol(symbol)
         raw=self.mt5.copy_rates_range(symbol,timeframe,start.astimezone(timezone.utc),end.astimezone(timezone.utc))
-        if raw is None or len(raw)==0: raise ValueError(f"No rates: {self.mt5.last_error()}")
+        if raw is None: raise RuntimeError(f"MT5 copy_rates_range failed: {self.mt5.last_error()}")
+        if len(raw)==0: return pd.DataFrame(columns=["time","open","high","low","close","tick_volume","spread","real_volume"])
         f=pd.DataFrame(raw); f["time"]=pd.to_datetime(f.time,unit="s",utc=True)
-        return f[(f.time>=pd.Timestamp(start))&(f.time<pd.Timestamp(end))].reset_index(drop=True)
+        return f[(f.time>=pd.Timestamp(start))&(f.time<pd.Timestamp(end))].sort_values("time").reset_index(drop=True)
     def close(self):
         if self.connected: self.mt5.shutdown(); self.connected=False
     def __enter__(self): self.connect(); return self

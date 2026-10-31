@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "volume-profile-trading-agent"
-version = "0.2.1"
+version = "0.2.2"
 description = "Research and paper-trading Volume Profile agent"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -22,6 +22,7 @@ plot = ["matplotlib>=3.8"]
 vp-agent = "volume_profile_agent.cli:main"
 vp-export-ccxt = "volume_profile_agent.ccxt_feed:main"
 vp-mt5-paper = "volume_profile_agent.mt5_paper_runner:main"
+vp-mt5-check = "volume_profile_agent.mt5_diagnostics:main"
 
 [tool.setuptools.packages.find]
 include = ["volume_profile_agent*"]

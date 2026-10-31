@@ -4,7 +4,7 @@ from datetime import time
 from zoneinfo import ZoneInfo
 import numpy as np,pandas as pd
 from .profile import ProfileConfig,calculate_profile
-from .strategies import StrategyConfig,scan_all
+from .strategies import scan_all
 from .risk_paper import PaperBroker,RiskConfig
 
 
@@ -18,22 +18,44 @@ def add_session_key(bars,timezone,session_start):
     if ts.isna().any(): raise ValueError("Invalid timestamps")
     local=ts.dt.tz_convert(zone); c=_clock(session_start)
     before=(local.dt.hour<c.hour)|((local.dt.hour==c.hour)&(local.dt.minute<c.minute))
-    f["time"]=ts; f["session_key"]=(local.dt.normalize()-pd.to_timedelta(before.astype(int),unit="D")).dt.strftime("%Y-%m-%d")
+    f["time"]=ts
+    f["session_key"]=(local.dt.normalize()-pd.to_timedelta(before.astype(int),unit="D")).dt.strftime("%Y-%m-%d")
     return f.sort_values("time").reset_index(drop=True)
 
 
-def scan_sessions(bars,*,symbol,timezone,session_start,profile_config=None,strategy_config=None):
-    f=add_session_key(bars,timezone,session_start)
-    groups=[(k,g.reset_index(drop=True)) for k,g in f.groupby("session_key",sort=True)]
-    if len(groups)<2: raise ValueError("At least two observed sessions are required")
+def scan_sessions_multiframe(profile_bars,execution_bars,*,symbol,timezone,session_start,
+                             profile_config=None,strategy_config=None):
+    """Use finer bars for the prior-session profile and execution bars for setups."""
+    profile_frame=add_session_key(profile_bars,timezone,session_start)
+    execution_frame=add_session_key(execution_bars,timezone,session_start)
+    p_groups={k:g.reset_index(drop=True) for k,g in profile_frame.groupby("session_key",sort=True)}
+    e_groups={k:g.reset_index(drop=True) for k,g in execution_frame.groupby("session_key",sort=True)}
+    keys=sorted(set(p_groups).intersection(e_groups))
+    if len(keys)<2:
+        raise ValueError("Need at least two sessions present in both profile and execution data")
     signals=[]; reports=[]
-    for i in range(1,len(groups)):
-        prior_key,prior=groups[i-1]; key,current=groups[i]
-        prof=calculate_profile(prior,profile_config,symbol=symbol); prior_close=float(prior.iloc[-1].close)
-        found=scan_all(current,prof,prior_close,config=strategy_config); signals+=found
-        reports.append({"profile_session":prior_key,"trading_session":key,"poc":prof.poc,"vah":prof.vah,
-                        "val":prof.val,"previous_close":prior_close,"signals":len(found)})
+    for i in range(1,len(keys)):
+        prior_key,current_key=keys[i-1],keys[i]
+        prior_profile_bars=p_groups[prior_key]
+        prior_execution_bars=e_groups[prior_key]
+        current_execution_bars=e_groups[current_key]
+        profile=calculate_profile(prior_profile_bars,profile_config,symbol=symbol)
+        previous_close=float(prior_execution_bars.iloc[-1].close)
+        found=scan_all(current_execution_bars,profile,previous_close,config=strategy_config)
+        signals.extend(found)
+        reports.append({"profile_session":prior_key,"trading_session":current_key,
+                        "profile_bar_count":len(prior_profile_bars),
+                        "execution_bar_count":len(current_execution_bars),
+                        "poc":profile.poc,"vah":profile.vah,"val":profile.val,
+                        "previous_close":previous_close,"signals":len(found)})
     return sorted(signals,key=lambda s:s.timestamp),reports
+
+
+def scan_sessions(bars,*,symbol,timezone,session_start,profile_config=None,strategy_config=None):
+    """Convenience scanner using one timeframe for both profile and signal bars."""
+    return scan_sessions_multiframe(bars,bars,symbol=symbol,timezone=timezone,
+                                    session_start=session_start,profile_config=profile_config,
+                                    strategy_config=strategy_config)
 
 
 def paper_backtest(bars,signals,*,symbol,initial_balance=10000,risk_config=None):

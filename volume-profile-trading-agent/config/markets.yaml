@@ -1,12 +1,36 @@
+# Charting platform and broker configuration.
+charting_platform: TradingView
+broker:
+  name: OANDA
+  account_division: unconfirmed
+  # For EU residents, OANDA states that OANDA TMS Brokers S.A. serves EU residents.
+  # Confirm the contracted legal entity in the account portal / agreement.
+  division_candidate: OANDA_TMS_BROKERS_SA
+  execution_mode: paper_only
+  mt5:
+    server_candidate: OANDATMS-MT5
+    symbol_candidate: GOLD.pro
+    symbol_verified: false
+    profile_timeframe: M1
+    execution_timeframe: M5
+    volume_field: tick_volume
+  tradingview:
+    tradeable_symbol_suffix_for_tms: .OTMS
+    gold_symbol: null
+    symbol_verified: false
 primary_market:
-  platform: MT5
-  symbol: XAUUSD
-  broker: null
-  broker_symbol: null
-  timeframe: M5
-  volume_field: tick_volume
+  display_name: Gold CFD
+  canonical_name: XAU/USD
+  mt5_symbol: GOLD.pro
+  verified: false
   session_timezone: null
   session_start: null
 watchlist:
-  forex: [EURUSD, GBPUSD]
-  crypto: [BTC/USDT, ETH/USDT]
+  forex:
+    - EURUSD.pro
+    - GBPUSD.pro
+  crypto:
+    - BTC/USDT
+    - ETH/USDT
+# All ticker names are candidates until confirmed in your account's Market Watch
+# and TradingView connected OANDA instrument list. CCXT examples are exchange-specific.

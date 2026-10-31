@@ -1,9 +1,9 @@
-"""CLI for profile calculation, session scan and historical paper backtest."""
+"""CLI for explicit profile calculation, session scan and paper backtest."""
 import argparse,json
 from pathlib import Path
 import pandas as pd
 from .profile import ProfileConfig,calculate_profile
-from .backtest import scan_sessions,paper_backtest
+from .backtest import scan_sessions_multiframe,paper_backtest
 from .risk_paper import RiskConfig
 
 
@@ -35,7 +35,9 @@ def main():
     prof.add_argument("--output")
     for name in ("scan","backtest"):
         q=sub.add_parser(name)
-        q.add_argument("--csv",required=True); q.add_argument("--symbol",default="XAUUSD")
+        q.add_argument("--csv",required=True,help="Execution timeframe CSV, e.g. M5")
+        q.add_argument("--profile-csv",help="Optional finer profile CSV, e.g. M1. Defaults to --csv.")
+        q.add_argument("--symbol",default="XAUUSD")
         q.add_argument("--timezone",default="UTC"); q.add_argument("--session-start",default="00:00")
         q.add_argument("--rows",type=int,default=60); q.add_argument("--value-area",type=float,default=.70)
         q.add_argument("--volume-field",choices=["tick_volume","real_volume","volume"],default="tick_volume")
@@ -50,7 +52,9 @@ def main():
         if start.tzinfo is None or end.tzinfo is None or end<=start: raise ValueError("start/end must be ordered timezone-aware timestamps")
         selected=bars[(bars.time>=start.tz_convert("UTC"))&(bars.time<end.tz_convert("UTC"))]
         emit(calculate_profile(selected,cfg,symbol=a.symbol).to_dict(),a.output); return
-    signals,sessions=scan_sessions(bars,symbol=a.symbol,timezone=a.timezone,session_start=a.session_start,profile_config=cfg)
+    profile_bars=load_csv(a.profile_csv) if a.profile_csv else bars
+    signals,sessions=scan_sessions_multiframe(profile_bars,bars,symbol=a.symbol,timezone=a.timezone,
+        session_start=a.session_start,profile_config=cfg)
     if a.command=="scan":
         emit({"sessions":sessions,"signals":[s.to_dict() for s in signals],"live_execution":False},a.output)
     else:

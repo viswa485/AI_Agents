@@ -1,0 +1,24 @@
+name: volume-profile-agent-tests
+on:
+  push:
+    paths:
+      - "volume-profile-trading-agent/**"
+      - ".github/workflows/volume-profile-agent.yml"
+  pull_request:
+    paths:
+      - "volume-profile-trading-agent/**"
+      - ".github/workflows/volume-profile-agent.yml"
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: volume-profile-trading-agent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - run: pytest

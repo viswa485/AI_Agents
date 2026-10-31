@@ -1,46 +1,56 @@
 # OANDA MT5 + TradingView setup
 
-## Confirmed account detail
+## Confirmed symbol
 
-The user confirms that **`XAUUSD` appears in their OANDA MT5 Market Watch**. This project uses exactly that symbol and does not silently rewrite it as `GOLD.pro`.
+The user has confirmed that **`XAUUSD` appears in their OANDA MT5 Market Watch**. The agent uses exactly this symbol. It does not silently rename it to `GOLD.pro`.
 
-There is a documentation detail to check: OANDA's current OANDA TMS MT5 guide names the server `OANDATMS-MT5` and says TMS instruments typically end in `.pro`. Since the user's terminal displays `XAUUSD`, run the diagnostic to inspect the actual logged-in server and symbol metadata. The account division is not inferred from geography or the symbol name.
+OANDA's EU TMS MT5 guide identifies the server as `OANDATMS-MT5`. Its TMS instrument guide says many instruments use a `.pro` suffix, while OANDA's EU execution-policy supplement also lists `XAUUSD` among quoted gold CFD symbols. The diagnostic inspects the actual logged-in terminal/server and exact symbol metadata rather than assuming a suffix.
 
-## 1. Read-only terminal diagnostic
+## 1. Read-only terminal login
 
-On the Windows machine running the OANDA MT5 desktop terminal:
+For an extra safety boundary, OANDA's MT5 guide documents an **Investor (read-only) password**. It allows viewing account activity/history but does not permit entering or modifying orders.
 
-1. Start MT5 and log into your own account.
-2. Confirm XAUUSD is visible in Market Watch.
-3. Open PowerShell in this project folder.
-4. Install: `pip install -e ".[mt5,dev]"`
-5. Run:
+In MT5:
+1. Tools → Options.
+2. Server tab → Change.
+3. Select **Change Investor (read only) password**.
+4. Set the investor password.
+5. Use a separate data-only MT5 terminal instance logged in with the investor password for this project.
+
+Do not send passwords or account numbers to this project or GitHub.
+
+## 2. Run diagnostic (Windows)
+
+The official Python `MetaTrader5` package on PyPI currently publishes Windows x86-64 wheels only. OANDA provides an MT5 Mac installer, but native macOS Python cannot install that official package directly. Run this diagnostic on a Windows machine/VPS with the OANDA MT5 terminal installed:
 
 ```powershell
+pip install -e ".[mt5,dev]"
 vp-mt5-check --symbol XAUUSD --expected-server OANDATMS-MT5 --lookback-hours 168 --output results/oanda-mt5-check.json
 ```
 
-The tool reports the terminal company/name, connected server, XAUUSD symbol properties and M1/M5 history counts/timestamps. It does **not** display account login, account number, balance, equity or credentials. It does not use any order placement/modification API. If the server is different, verify the OANDA legal entity and server in the MT5 login/account details before changing `--expected-server`.
+The command returns terminal company/name, broker server, symbol metadata and M1/M5 history counts/timestamps. It deliberately omits account login, account number, balance, equity and credentials. It never submits, modifies or closes orders.
 
-## 2. OANDA TMS reference
+If the expected server substring fails, verify the server from the terminal's login/account information. OANDA's documentation says `OANDATMS-MT5`; a live/demo server display may add a suffix. Only change `--expected-server` after confirming the intended OANDA account division.
 
-OANDA's EU TMS MT5 help guide identifies `OANDATMS-MT5` as the server and notes that TMS instrument names generally end in `.pro`. The user-confirmed `XAUUSD` must be checked against the live terminal rather than assumed invalid or changed automatically.
+## 3. Mac development option
 
-## 3. TradingView chart
+You can keep Python strategy research, CSV processing, API and dashboard development on macOS. For direct Python-to-MT5 market data, use the Windows terminal/connector on a Windows VPS. A separate MQL5-to-CSV exporter can be used if you want the MT5 chart terminal to stay on Mac and avoid the Windows Python package.
 
-For OANDA TMS, OANDA's TradingView guide says tradeable tickers have the `.OTMS` suffix (example `EURUSD.PRO.OTMS`). Search Gold after connecting the OANDA account, then record the exact tradeable ticker from the list. The account-specific Gold TradingView symbol remains intentionally blank until observed.
+## 4. TradingView chart
 
-## 4. Compare profile levels
+For OANDA TMS, OANDA's TradingView guide says tradeable tickers have the `.OTMS` suffix (example `EURUSD.PRO.OTMS`). Search for Gold after connecting the OANDA account, then record the exact Gold ticker from the available list. The account-specific Gold TradingView ticker remains blank until observed.
+
+## 5. Compare profile levels
 
 Use the same OANDA feed and exact completed session:
 - Chart: connected OANDA Gold symbol on TradingView.
 - Fixed Range Volume Profile: 60 rows, 70% Value Area.
 - Agent: M1 closed bars for profile, M5 closed bars for strategy signals.
-- Session: set the same confirmed timezone/open/close on both platforms.
+- Session: identical timezone and session range on both platforms.
 
-The agent's allocation spreads M1 volume uniformly across each candle range. It is an OHLC estimate, not a reconstruction of each tick, so POC/VAH/VAL need not match TradingView exactly.
+The agent distributes each M1 bar's selected volume uniformly across its high-low range. This is an OHLC estimate, not a reconstruction of each tick; exact POC/VAH/VAL equality with TradingView is not guaranteed.
 
-## 5. Paper monitor after diagnostics
+## 6. Paper monitor after diagnostics
 
 Only after the diagnostic confirms terminal, server, symbol and data availability:
 
@@ -48,4 +58,4 @@ Only after the diagnostic confirms terminal, server, symbol and data availabilit
 vp-mt5-paper --symbol XAUUSD --profile-timeframe M1 --timeframe M5 --timezone Europe/London --session-start 00:00
 ```
 
-Replace the example session timezone and start with the actual session you use in TradingView. The MT5 adapter is read-only; all orders are simulated in local SQLite.
+Replace the example timezone/session start with the actual session used in TradingView. The MT5 adapter is read-only; all entries/exits are simulated in local SQLite.

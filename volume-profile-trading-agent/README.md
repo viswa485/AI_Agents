@@ -11,18 +11,24 @@ Paper-trading-first implementation of the supplied Volume Profile Trading Bluepr
 
 The PDF specifies 60 profile rows, 70% value area and approximately 2R. It does not define session clock, rejection tolerance, swing/BOS algorithm, stop buffer or pullback tolerance; these are configurable engineering assumptions.
 
-## OANDA MT5 connection check (Windows)
+## OANDA MT5 connection check
 
-1. Open the OANDA MT5 desktop terminal and log in to the account. Do not send credentials to this project or GitHub.
-2. Confirm `XAUUSD` is present in Market Watch (you confirmed this symbol).
-3. On the same Windows machine, install the project and run:
+**The symbol is configured as `XAUUSD` because the user confirmed that exact name in their MT5 Market Watch.** OANDA's EU TMS guide names the MT5 server `OANDATMS-MT5`; OANDA documentation also lists XAUUSD among its CFDs. The TMS guide notes that many/most TMS instruments use the `.pro` suffix, so the diagnostic checks the actual logged-in server and exact XAUUSD symbol instead of renaming it.
+
+1. Open the OANDA MT5 terminal and log in to your account. Confirm `XAUUSD` is visible in Market Watch.
+2. For an additional read-only safeguard, create an MT5 **Investor (read-only) password** (Tools → Options → Server → Change → Change Investor (read only) password) and log a separate data-only terminal instance into that investor account. OANDA documents that investor-password users can view account activity/history but cannot enter or modify orders.
+3. Run this project on Windows with the MT5 desktop terminal installed and logged in:
 
 ```powershell
 pip install -e ".[mt5,dev]"
 vp-mt5-check --symbol XAUUSD --expected-server OANDATMS-MT5 --lookback-hours 168 --output results/oanda-mt5-check.json
 ```
 
-The diagnostic prints the terminal company/name, broker server, symbol metadata and available M1/M5 history. It deliberately omits account login, account number, balance, equity and credentials. It does not submit, modify or close orders. If your account is not on the TMS division/server, pass its server name in `--expected-server` after verifying the account entity.
+The diagnostic reports terminal company/name, connected server, XAUUSD symbol metadata and available M1/M5 history. It omits account login, account number, balance, equity and credentials. It does not submit, modify or close orders. If your OANDA account division/server differs, verify it in the OANDA portal/account agreement and pass the observed server substring to `--expected-server`.
+
+### Mac users
+
+OANDA provides an MT5 Mac installer, but the official Python `MetaTrader5` package on PyPI currently publishes Windows x86-64 wheels only. Therefore the direct `vp-mt5-check` / `vp-mt5-paper` Python bridge is intended for Windows, such as a Windows VPS. You can continue developing and running the strategy engine, CSV workflows, API and dashboard on macOS. A separate MQL5-to-CSV bridge can be used if you prefer to keep the MT5 terminal on Mac rather than use Windows.
 
 ## Paper monitor (Windows; only after connection diagnostic passes)
 
@@ -34,9 +40,9 @@ The timezone/session start above are examples only. Confirm the session interval
 
 ## TradingView comparison
 
-For OANDA TMS, the official TradingView guide says tradeable symbols have the `.OTMS` suffix and its example is `EURUSD.PRO.OTMS`. Search for Gold in the connected OANDA symbol list; do not guess the complete ticker. Select the OANDA feed and use the same session, M1 source data, 60 rows and 70% Value Area. The Python profile allocates M1 candle volume uniformly across each candle's low-high range, so level differences from TradingView are expected.
+For OANDA TMS, its TradingView guide says tradeable symbols have the `.OTMS` suffix and gives `EURUSD.PRO.OTMS` as an example. Search for Gold in the connected OANDA symbol list; do not guess the complete ticker. Select the OANDA feed and use the same session, M1 source data, 60 rows and 70% Value Area. The Python profile allocates M1 candle volume uniformly across each candle's low-high range, so level differences from TradingView are expected.
 
-## Install and test
+## Install
 
 ```bash
 python3 -m venv .venv
@@ -56,6 +62,7 @@ vp-agent backtest --csv market.csv --symbol XAUUSD --timezone Europe/London --se
 ```
 
 ## Limitations
+
 - MT5 tick volume is price-update count; real_volume is a separate field. Gold CFD volume is broker-feed data, not a consolidated COMEX futures tape.
 - Profile allocation is an OHLC estimate, not transaction-level volume-at-price.
 - Backtesting lacks broker-specific spreads, commissions, slippage, swaps, tick value, contract-size/lot calculation and latency modelling. Paper quantity is abstract risk units, not MT5 lots.

@@ -1,0 +1,4 @@
+row_count: 60
+value_area_pct: 0.70
+volume_field: tick_volume
+allocation_method: range_uniform_ohlc_estimate

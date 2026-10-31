@@ -1,0 +1,6 @@
+# Paper quantity is abstract price-risk units, not MT5 lots.
+initial_balance: 10000
+risk_fraction: 0.0025
+max_daily_loss_fraction: 0.01
+max_open_positions: 1
+max_trades_per_day: 5

@@ -1,0 +1,8 @@
+risk_reward: 2.0
+atr_period: 14
+atr_stop_buffer: 0.15
+poc_touch_tolerance_atr: 0.15
+swing_lookback: 5
+max_breakout_setup_bars: 12
+pullback_tolerance_atr: 0.35
+max_pullback_depth_atr: 0.50

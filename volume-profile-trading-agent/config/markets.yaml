@@ -1,0 +1,12 @@
+primary_market:
+  platform: MT5
+  symbol: XAUUSD
+  broker: null
+  broker_symbol: null
+  timeframe: M5
+  volume_field: tick_volume
+  session_timezone: null
+  session_start: null
+watchlist:
+  forex: [EURUSD, GBPUSD]
+  crypto: [BTC/USDT, ETH/USDT]

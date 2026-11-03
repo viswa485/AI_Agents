@@ -25,7 +25,7 @@ def test_bm25_search_returns_relevant_source() -> None:
     engine = SearchEngine(documents)
     hits = engine.search("reciprocal rank fusion combines retrieval rankings", top_k=3)
     assert hits
-    assert hits[0].metadata["source"] == "rag_architecture.md"
+    assert hits[0].metadata["source"] == "sparse_dense_retrieval.md"
 
 
 def test_metadata_filter_is_applied() -> None:
@@ -38,7 +38,7 @@ def test_metadata_filter_is_applied() -> None:
 
 def test_reference_evaluation_returns_defined_metrics() -> None:
     documents = load_documents(PROJECT_ROOT / "data" / "sample_corpus")
-    assert len(documents) == 3
+    assert len(documents) == 18
     assert all(document.doc_id.endswith("#0") for document in documents)
     engine = SearchEngine(documents)
     dataset = load_eval_dataset(PROJECT_ROOT / "data" / "eval_dataset.jsonl")

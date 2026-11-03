@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from typing import Any, TypedDict
 
-from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import END, START, StateGraph
 
 from hybrid_rag.context import prune_evidence
@@ -209,7 +209,7 @@ def build_research_agent(engine: SearchEngine):
     )
     graph.add_edge("query_rewriter_agent", "retrieval_specialist")
     graph.add_edge("synthesis_agent", END)
-    return graph.compile(checkpointer=MemorySaver())
+    return graph.compile(checkpointer=InMemorySaver())
 
 
 def ask_question(

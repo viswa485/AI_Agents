@@ -6,11 +6,9 @@ from statistics import mean
 from typing import Any
 
 from hybrid_rag.agent import ask_question
-from hybrid_rag.retrieval import SearchEngine
 
 
 def run_reference_review(
-    engine: SearchEngine,
     agent: Any,
     dataset: list[dict[str, Any]],
     output_path: str | Path,

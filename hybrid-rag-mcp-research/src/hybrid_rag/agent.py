@@ -57,12 +57,18 @@ def _optional_llm_response(system_prompt: str, user_prompt: str) -> str | None:
             get_client().update_current_generation(
                 model=model_name,
                 usage_details={
-                    "prompt_tokens": int(usage.prompt_tokens),
-                    "completion_tokens": int(usage.completion_tokens),
-                    "total_tokens": int(usage.total_tokens),
+                    "prompt_tokens": int(getattr(usage, "prompt_tokens", 0) or 0),
+                    "completion_tokens": int(getattr(usage, "completion_tokens", 0) or 0),
+                    "total_tokens": int(
+                        getattr(usage, "total_tokens", 0)
+                        or (
+                            int(getattr(usage, "prompt_tokens", 0) or 0)
+                            + int(getattr(usage, "completion_tokens", 0) or 0)
+                        )
+                    ),
                 },
             )
-        except (ImportError, AttributeError, RuntimeError):
+        except Exception:
             # The model response must remain usable if optional tracing is unavailable.
             pass
 

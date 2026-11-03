@@ -38,6 +38,8 @@ def test_metadata_filter_is_applied() -> None:
 
 def test_reference_evaluation_returns_defined_metrics() -> None:
     documents = load_documents(PROJECT_ROOT / "data" / "sample_corpus")
+    assert len(documents) == 3
+    assert all(document.doc_id.endswith("#0") for document in documents)
     engine = SearchEngine(documents)
     dataset = load_eval_dataset(PROJECT_ROOT / "data" / "eval_dataset.jsonl")
     result = evaluate_retrieval(engine, dataset, k=3)

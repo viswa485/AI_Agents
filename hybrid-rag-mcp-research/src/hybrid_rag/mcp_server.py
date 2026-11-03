@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 from typing import Annotated, Any
 
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 from pydantic import Field
 
 from hybrid_rag.agent import ask_question, build_research_agent
@@ -21,7 +21,7 @@ def create_server(
     reranker_model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2",
     chunk_size: int = 1800,
     chunk_overlap: int = 120,
-) -> FastMCP:
+) -> MCPServer:
     documents = load_documents(
         corpus_dir,
         chunk_size=chunk_size,
@@ -33,7 +33,7 @@ def create_server(
         reranker_model=reranker_model if rerank else None,
     )
     agent = build_research_agent(engine)
-    server = FastMCP("hybrid-rag-research")
+    server = MCPServer("hybrid-rag-research")
 
     @server.tool()
     def search_documents(

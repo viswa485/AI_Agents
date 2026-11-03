@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hybrid-rag-mcp-research"
+version = "0.1.0"
+description = "A reproducible hybrid retrieval, LangGraph workflow and MCP research prototype."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["langgraph>=0.2.0", "mcp>=2.0.0", "pydantic>=2.8", "rank-bm25>=0.2.2", "numpy>=1.26"]
+
+[project.optional-dependencies]
+dense = ["sentence-transformers>=3.0"]
+llm = ["openai>=1.40"]
+observability = ["langfuse>=4.0"]
+sqlite = ["langgraph-checkpoint-sqlite>=2.0"]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[project.scripts]
+hybrid-rag = "hybrid_rag.cli:main"
+hybrid-rag-mcp = "hybrid_rag.mcp_server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+

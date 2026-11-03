@@ -1,0 +1,50 @@
+{"query":"How does BM25 work for sparse text retrieval?","relevant_doc_ids":["sparse_dense_retrieval.md#0"]}
+{"query":"When is BM25 useful for exact technical terms?","relevant_doc_ids":["sparse_dense_retrieval.md#0"]}
+{"query":"What is dense embedding retrieval?","relevant_doc_ids":["sparse_dense_retrieval.md#0"]}
+{"query":"How can semantic search find related wording?","relevant_doc_ids":["sparse_dense_retrieval.md#0"]}
+{"query":"What is hybrid retrieval in a RAG system?","relevant_doc_ids":["sparse_dense_retrieval.md#0"]}
+{"query":"How does reciprocal rank fusion combine result lists?","relevant_doc_ids":["rank_fusion_reranking.md#0"]}
+{"query":"Why combine sparse and dense ranking signals?","relevant_doc_ids":["rank_fusion_reranking.md#0"]}
+{"query":"What does a cross encoder reranker do?","relevant_doc_ids":["rank_fusion_reranking.md#0"]}
+{"query":"Why rerank only a small candidate set?","relevant_doc_ids":["rank_fusion_reranking.md#0"]}
+{"query":"How do metadata filters constrain retrieval?","relevant_doc_ids":["metadata_query_preparation.md#0"]}
+{"query":"What is the purpose of query normalization?","relevant_doc_ids":["metadata_query_preparation.md#0"]}
+{"query":"What is Recall at K?","relevant_doc_ids":["retrieval_metrics_baselines.md#0"]}
+{"query":"How is mean reciprocal rank calculated?","relevant_doc_ids":["retrieval_metrics_baselines.md#0"]}
+{"query":"Why should a retrieval baseline record chunking settings?","relevant_doc_ids":["retrieval_metrics_baselines.md#0"]}
+{"query":"How do candidate count and reranker choice affect retrieval?","relevant_doc_ids":["retrieval_metrics_baselines.md#0"]}
+{"query":"What should be recorded in a retrieval experiment?","relevant_doc_ids":["retrieval_metrics_baselines.md#0"]}
+{"query":"Why compare ranking configurations on the same labelled queries?","relevant_doc_ids":["retrieval_metrics_baselines.md#0"]}
+{"query":"What is a stateful graph workflow?","relevant_doc_ids":["stateful_graph_workflows.md#0"]}
+{"query":"How do graph nodes exchange state?","relevant_doc_ids":["stateful_graph_workflows.md#0"]}
+{"query":"How can a graph decide to retry retrieval?","relevant_doc_ids":["stateful_graph_workflows.md#0"]}
+{"query":"What is checkpointing in LangGraph?","relevant_doc_ids":["checkpointing_and_threads.md#0"]}
+{"query":"How does a thread identifier relate to checkpoint state?","relevant_doc_ids":["checkpointing_and_threads.md#0"]}
+{"query":"What is the limitation of an in-memory checkpointer?","relevant_doc_ids":["checkpointing_and_threads.md#0"]}
+{"query":"What does the Model Context Protocol provide?","relevant_doc_ids":["mcp_tool_interfaces.md#0"]}
+{"query":"Which tools can a retrieval MCP server expose?","relevant_doc_ids":["mcp_tool_interfaces.md#0"]}
+{"query":"Why should MCP tools validate input and limit results?","relevant_doc_ids":["mcp_tool_interfaces.md#0"]}
+{"query":"What does least privilege tool execution mean?","relevant_doc_ids":["tool_security_boundaries.md#0"]}
+{"query":"Why should a tool avoid unrestricted filesystem paths?","relevant_doc_ids":["tool_security_boundaries.md#0"]}
+{"query":"Why are read-only tools safer than write tools?","relevant_doc_ids":["tool_security_boundaries.md#0"]}
+{"query":"What additional controls should write tools require?","relevant_doc_ids":["tool_security_boundaries.md#0"]}
+{"query":"Is a multi-step graph automatically a multi-agent system?","relevant_doc_ids":["agent_architecture_boundaries.md#0"]}
+{"query":"How can agent state transitions and retries be tested?","relevant_doc_ids":["agent_architecture_boundaries.md#0"]}
+{"query":"What is the difference between deterministic graph nodes and LLM agents?","relevant_doc_ids":["agent_architecture_boundaries.md#0"]}
+{"query":"How should retrieval and answer evaluation be separated?","relevant_doc_ids":["answer_faithfulness_and_citations.md#0"]}
+{"query":"What is faithfulness in an LLM application?","relevant_doc_ids":["answer_faithfulness_and_citations.md#0"]}
+{"query":"How can citation correctness be evaluated?","relevant_doc_ids":["answer_faithfulness_and_citations.md#0"]}
+{"query":"What belongs in a reference evaluation dataset?","relevant_doc_ids":["evaluation_dataset_design.md#0"]}
+{"query":"Why is dataset size alone insufficient to establish quality?","relevant_doc_ids":["evaluation_dataset_design.md#0"]}
+{"query":"Why should difficult and ambiguous queries be included?","relevant_doc_ids":["evaluation_dataset_design.md#0"]}
+{"query":"What workflow stages are useful to trace?","relevant_doc_ids":["llm_observability_signals.md#0"]}
+{"query":"Which operational signals should be monitored in an LLM system?","relevant_doc_ids":["llm_observability_signals.md#0"]}
+{"query":"How can latency and token usage be observed?","relevant_doc_ids":["llm_observability_signals.md#0"]}
+{"query":"What privacy risks arise from tracing user prompts and retrieved documents?","relevant_doc_ids":["trace_privacy_controls.md#0"]}
+{"query":"How should sensitive data in traces be minimized?","relevant_doc_ids":["trace_privacy_controls.md#0"]}
+{"query":"What is an evaluation regression gate?","relevant_doc_ids":["regression_and_experiment_review.md#0"]}
+{"query":"How should a regression threshold be selected?","relevant_doc_ids":["regression_and_experiment_review.md#0"]}
+{"query":"Why should evaluation results be tied to a corpus and configuration?","relevant_doc_ids":["retrieval_metrics_baselines.md#0"]}
+{"query":"What are the limits of using a small evaluation set?","relevant_doc_ids":["evaluation_dataset_design.md#0"]}
+{"query":"Why do retrieval metrics not guarantee answer faithfulness?","relevant_doc_ids":["answer_faithfulness_and_citations.md#0"]}
+{"query":"How can prompt and chunking changes be evaluated consistently?","relevant_doc_ids":["regression_and_experiment_review.md#0"]}

@@ -1,0 +1,32 @@
+name: Hybrid RAG Research CI
+
+on:
+  push:
+    branches: [main, feature/hybrid-rag-mcp-research]
+    paths:
+      - "hybrid-rag-mcp-research/**"
+      - ".github/workflows/hybrid-rag-research-ci.yml"
+  pull_request:
+    paths:
+      - "hybrid-rag-mcp-research/**"
+      - ".github/workflows/hybrid-rag-research-ci.yml"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: hybrid-rag-mcp-research
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: hybrid-rag-mcp-research/pyproject.toml
+      - name: Install package and development dependencies
+        run: python -m pip install -e ".[dev]"
+      - name: Run tests
+        run: pytest
+      - name: Check static lint
+        run: ruff check src tests

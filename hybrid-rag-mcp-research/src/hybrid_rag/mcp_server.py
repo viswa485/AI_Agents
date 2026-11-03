@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Any
+from typing import Annotated, Any
 
 from mcp.server.fastmcp import FastMCP
+from pydantic import Field
 
 from hybrid_rag.agent import ask_question, build_research_agent
 from hybrid_rag.ingest import load_documents
@@ -18,24 +19,36 @@ def create_server(corpus_dir: str | Path) -> FastMCP:
     server = FastMCP("hybrid-rag-research")
 
     @server.tool()
-    def search_documents(query: str, top_k: int = 5) -> list[dict[str, Any]]:
+    def search_documents(
+        query: Annotated[str, Field(min_length=1, max_length=2000)],
+        top_k: Annotated[int, Field(ge=1, le=20)] = 5,
+    ) -> list[dict[str, Any]]:
         """Search the local indexed corpus with BM25 retrieval."""
-        if top_k < 1 or top_k > 20:
-            raise ValueError("top_k must be between 1 and 20")
         return [hit.to_dict() for hit in engine.search(query, top_k=top_k)]
 
     @server.tool()
     def ask_research_question(
-        question: str,
-        thread_id: str = "mcp-research-session",
-        top_k: int = 5,
+        question: Annotated[str, Field(min_length=1, max_length=2000)],
+        thread_id: Annotated[str, Field(min_length=1, max_length=128)] = "mcp-research-session",
+        top_k: Annotated[int, Field(ge=1, le=20)] = 5,
+        context_max_chars: Annotated[int, Field(ge=100, le=20000)] = 3000,
+        context_max_chunks: Annotated[int, Field(ge=1, le=10)] = 5,
     ) -> str:
-        """Run the stateful LangGraph workflow and return source-linked evidence."""
-        result = ask_question(agent, question, thread_id=thread_id, top_k=top_k)
+        """Run the stateful LangGraph workflow with bounded evidence context."""
+        result = ask_question(
+            agent,
+            question,
+            thread_id=thread_id,
+            top_k=top_k,
+            context_max_chars=context_max_chars,
+            context_max_chunks=context_max_chunks,
+        )
         return result["answer"]
 
     @server.tool()
-    def get_source_document(doc_id: str) -> dict[str, Any]:
+    def get_source_document(
+        doc_id: Annotated[str, Field(min_length=1, max_length=512)],
+    ) -> dict[str, Any]:
         """Return the exact indexed text chunk and metadata for a citation identifier."""
         document = engine.by_id.get(doc_id)
         if document is None:

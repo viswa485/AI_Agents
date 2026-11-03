@@ -31,9 +31,9 @@ def test_bm25_search_returns_relevant_source() -> None:
 def test_metadata_filter_is_applied() -> None:
     documents = load_documents(PROJECT_ROOT / "data" / "sample_corpus")
     engine = SearchEngine(documents)
-    hits = engine.search("agent checkpointing", filters={"source": "agent_state_and_tools.md"})
+    hits = engine.search("agent checkpointing", filters={"source": "checkpointing_and_threads.md"})
     assert hits
-    assert all(hit.metadata["source"] == "agent_state_and_tools.md" for hit in hits)
+    assert all(hit.metadata["source"] == "checkpointing_and_threads.md" for hit in hits)
 
 
 def test_reference_evaluation_returns_defined_metrics() -> None:

@@ -164,6 +164,21 @@ Example client configuration (replace paths with absolute paths on your machine)
 }
 ~~~
 
+## Run every reference question through the agent
+
+~~~bash
+hybrid-rag --corpus data/sample_corpus review \
+  --dataset data/eval_dataset.jsonl \
+  --output results/reference_review.jsonl \
+  --top-k 5
+~~~
+
+This runs each labelled question through the full LangGraph workflow using a separate checkpoint thread and writes one JSONL record per question. Each record includes the original and rewritten query, rewrite count, critic outcome, retrieved and labelled source IDs, Recall@K, reciprocal rank, context-budget statistics, supporting excerpts, and the answer. When LLM credentials and optional dependencies are configured, the specialist model calls are traced by Langfuse and provider token usage is attached where available.
+
+The export deliberately marks faithfulness as pending manual review. Reviewers should compare each answer sentence with the included evidence excerpts and source document, mark unsupported claims, check citation accuracy, and then record the outcome. A critic model output or citation string is not itself proof of faithfulness.
+
+The Langfuse trace spans make retrieval, context pruning, rewrite, critique and synthesis stages inspectable. The context estimate is a character-based approximation; provider-reported generation token counts are separate and should be used for model usage comparisons. The bundled corpus and labels are synthetic starter data.
+
 ## Run the 50-query retrieval evaluation
 
 ~~~bash

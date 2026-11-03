@@ -4,7 +4,6 @@ from pathlib import Path
 
 from .models import Document
 
-
 SUPPORTED_SUFFIXES = {".md", ".txt"}
 
 

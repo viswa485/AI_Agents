@@ -28,5 +28,9 @@ jobs:
         run: python -m pip install -e ".[dev]"
       - name: Run tests
         run: pytest
+      - name: Preview Ruff import ordering
+        run: |
+          ruff check --select I --fix src tests
+          git diff -- src tests
       - name: Check static lint
         run: ruff check src tests

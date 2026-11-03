@@ -1,0 +1,6 @@
+{"query":"How does BM25 combine with dense vector retrieval?","relevant_doc_ids":["rag_architecture.md#0"]}
+{"query":"What does reciprocal rank fusion do?","relevant_doc_ids":["rag_architecture.md#0"]}
+{"query":"How does checkpointing support a stateful workflow?","relevant_doc_ids":["agent_state_and_tools.md#0"]}
+{"query":"What tools should a retrieval MCP server expose?","relevant_doc_ids":["agent_state_and_tools.md#0"]}
+{"query":"How should Recall at K and MRR be evaluated?","relevant_doc_ids":["llm_evaluation.md#0"]}
+{"query":"What information can tracing capture and what are privacy risks?","relevant_doc_ids":["llm_evaluation.md#0"]}

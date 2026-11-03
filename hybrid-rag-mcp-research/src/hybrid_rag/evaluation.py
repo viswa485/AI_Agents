@@ -17,7 +17,7 @@ def load_eval_dataset(path: str | Path) -> list[dict[str, Any]]:
         except json.JSONDecodeError as exc:
             raise ValueError(f"Invalid JSONL at line {line_number}: {exc}") from exc
         if not isinstance(record.get("relevant_doc_ids"), list):
-            raise ValueError(f"Line {line_number} must contain relevant_doc_ids")
+            raise TypeError(f"Line {line_number} must contain relevant_doc_ids as a list")
         records.append(record)
     return records
 

@@ -79,7 +79,11 @@ def _optional_llm_response(system_prompt: str, user_prompt: str) -> str | None:
     return content.strip() if content else None
 
 
-def build_research_agent(engine: SearchEngine):
+def build_research_agent(
+    engine: SearchEngine,
+    *,
+    interrupt_before: list[str] | None = None,
+):
     """Build a checkpointed graph with specialist stages.
 
     When OPENAI_API_KEY is configured and the optional OpenAI SDK is installed,
@@ -218,7 +222,10 @@ def build_research_agent(engine: SearchEngine):
     )
     graph.add_edge("query_rewriter_agent", "retrieval_specialist")
     graph.add_edge("synthesis_agent", END)
-    return graph.compile(checkpointer=InMemorySaver())
+    return graph.compile(
+        checkpointer=InMemorySaver(),
+        interrupt_before=interrupt_before or [],
+    )
 
 
 def ask_question(

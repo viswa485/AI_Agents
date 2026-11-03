@@ -92,7 +92,6 @@ def main() -> None:
         dataset = load_eval_dataset(args.dataset)
         agent = build_research_agent(engine)
         result = run_reference_review(
-            engine,
             agent,
             dataset,
             args.output,

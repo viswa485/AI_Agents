@@ -6,8 +6,8 @@ from typing import Any, TypeVar, cast
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-def trace_span(name: str) -> Callable[[F], F]:
-    """Trace a named span without capturing function arguments or return values."""
+def trace_span(name: str, as_type: str = "span") -> Callable[[F], F]:
+    """Create an optional Langfuse observation without capturing arguments or results."""
     try:
         from langfuse import observe
     except ImportError:
@@ -18,7 +18,12 @@ def trace_span(name: str) -> Callable[[F], F]:
     def decorate(function: F) -> F:
         return cast(
             F,
-            observe(name=name, capture_input=False, capture_output=False)(function),
+            observe(
+                name=name,
+                as_type=as_type,
+                capture_input=False,
+                capture_output=False,
+            )(function),
         )
 
     return decorate

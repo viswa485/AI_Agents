@@ -23,7 +23,7 @@ def test_reciprocal_rank_fusion_combines_rankings() -> None:
 def test_bm25_search_returns_relevant_source() -> None:
     documents = load_documents(PROJECT_ROOT / "data" / "sample_corpus")
     engine = SearchEngine(documents)
-    hits = engine.search("reciprocal rank fusion combines retrieval rankings", top_k=3)
+    hits = engine.search("BM25 dense vector embeddings hybrid retrieval", top_k=3)
     assert hits
     assert hits[0].metadata["source"] == "sparse_dense_retrieval.md"
 
@@ -44,5 +44,7 @@ def test_reference_evaluation_returns_defined_metrics() -> None:
     dataset = load_eval_dataset(PROJECT_ROOT / "data" / "eval_dataset.jsonl")
     result = evaluate_retrieval(engine, dataset, k=3)
     assert result["query_count"] == 50
+    known_ids = {document.doc_id for document in documents}
+    assert all(set(row["relevant_doc_ids"]).issubset(known_ids) for row in dataset)
     assert 0.0 <= result["recall_at_k"] <= 1.0
     assert 0.0 <= result["mrr"] <= 1.0

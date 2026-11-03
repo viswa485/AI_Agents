@@ -7,7 +7,7 @@ F = TypeVar("F", bound=Callable[..., Any])
 
 
 def trace_span(name: str) -> Callable[[F], F]:
-    """Use a Langfuse span when the optional SDK is installed."""
+    """Trace a named span without capturing function arguments or return values."""
     try:
         from langfuse import observe
     except ImportError:
@@ -16,6 +16,9 @@ def trace_span(name: str) -> Callable[[F], F]:
         return passthrough
 
     def decorate(function: F) -> F:
-        return cast(F, observe(name=name)(function))
+        return cast(
+            F,
+            observe(name=name, capture_input=False, capture_output=False)(function),
+        )
 
     return decorate

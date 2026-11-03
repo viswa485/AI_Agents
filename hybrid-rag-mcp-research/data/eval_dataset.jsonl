@@ -48,4 +48,3 @@
 {"query":"What are the limits of using a small evaluation set?","relevant_doc_ids":["llm_evaluation.md#0"]}
 {"query":"Why do retrieval metrics not guarantee answer faithfulness?","relevant_doc_ids":["llm_evaluation.md#0"]}
 {"query":"How can prompt and chunking changes be evaluated consistently?","relevant_doc_ids":["llm_evaluation.md#0"]}
-{"query":"Why are measurements on a labelled test set not guarantees for unseen users?","relevant_doc_ids":["llm_evaluation.md#0"]}

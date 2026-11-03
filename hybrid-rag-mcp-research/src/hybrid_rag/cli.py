@@ -15,7 +15,9 @@ DEFAULT_EVAL = Path("data/eval_dataset.jsonl")
 
 
 def _engine(args: argparse.Namespace) -> SearchEngine:
-    documents = load_documents(args.corpus)
+    documents = load_documents(
+        args.corpus, chunk_size=args.chunk_size, overlap=args.chunk_overlap
+    )
     return SearchEngine(
         documents,
         embedding_model=args.embedding_model if args.dense else None,
@@ -30,6 +32,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--embedding-model", default="sentence-transformers/all-MiniLM-L6-v2")
     parser.add_argument("--rerank", action="store_true", help="Enable cross-encoder reranking")
     parser.add_argument("--reranker-model", default="cross-encoder/ms-marco-MiniLM-L-6-v2")
+    parser.add_argument("--chunk-size", type=int, default=1800)
+    parser.add_argument("--chunk-overlap", type=int, default=120)
     commands = parser.add_subparsers(dest="command", required=True)
 
     search = commands.add_parser("search", help="Retrieve matching chunks")

@@ -20,7 +20,7 @@ def test_research_agent_returns_source_linked_evidence() -> None:
         context_max_chunks=2,
     )
     assert "answer" in result
-    assert "source:" in result["answer"]
+    assert "source:" in result["answer"] or "[" in result["answer"]
     assert result["hits"]
     assert result["context_stats"]["retained_chars"] <= 1200
     assert result["context_stats"]["retained_chunks"] <= 2

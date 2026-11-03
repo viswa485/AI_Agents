@@ -4,8 +4,8 @@ from pathlib import Path
 from hybrid_rag.agent import build_research_agent
 from hybrid_rag.evaluation import load_eval_dataset
 from hybrid_rag.ingest import load_documents
-from hybrid_rag.review import run_reference_review
 from hybrid_rag.retrieval import SearchEngine
+from hybrid_rag.review import run_reference_review
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 

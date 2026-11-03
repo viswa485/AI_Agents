@@ -6,6 +6,7 @@ from typing import Any, TypedDict
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, START, StateGraph
 
+from hybrid_rag.observability import trace_span
 from hybrid_rag.retrieval import SearchEngine
 
 
@@ -54,10 +55,12 @@ def build_research_agent(engine: SearchEngine):
     Otherwise, deterministic local fallbacks keep the prototype usable offline.
     """
 
+    @trace_span("research.retrieval_specialist")
     def retrieval_specialist(state: ResearchState) -> dict[str, Any]:
         hits = engine.search(state.get("query", state["question"]), top_k=state.get("top_k", 5))
         return {"hits": [hit.to_dict() for hit in hits]}
 
+    @trace_span("research.evidence_specialist")
     def evidence_specialist(state: ResearchState) -> dict[str, Any]:
         evidence = [
             {
@@ -70,6 +73,7 @@ def build_research_agent(engine: SearchEngine):
         ]
         return {"evidence": evidence}
 
+    @trace_span("research.critic_agent")
     def critic_agent(state: ResearchState) -> dict[str, Any]:
         evidence = state.get("evidence", [])
         fallback = (
@@ -101,6 +105,7 @@ def build_research_agent(engine: SearchEngine):
             return "rewrite"
         return "synthesize"
 
+    @trace_span("research.query_rewriter_agent")
     def query_rewriter_agent(state: ResearchState) -> dict[str, Any]:
         question = state.get("question", state.get("query", ""))
         prompt = (
@@ -108,13 +113,16 @@ def build_research_agent(engine: SearchEngine):
             "base. Preserve named entities and technical terms. Do not answer the question. "
             f"\n\nQuestion: {question}"
         )
-        response = _optional_llm_response("You are a retrieval query-rewriting specialist.", prompt)
+        response = _optional_llm_response(
+            "You are a retrieval query-rewriting specialist.", prompt
+        )
         expanded = response or f"{question} architecture implementation design evaluation"
         return {
             "query": expanded[:1000],
             "rewrite_count": state.get("rewrite_count", 0) + 1,
         }
 
+    @trace_span("research.synthesis_agent")
     def synthesis_agent(state: ResearchState) -> dict[str, Any]:
         evidence = state.get("evidence", [])
         if not evidence:
@@ -180,6 +188,8 @@ def ask_question(
 ) -> dict[str, Any]:
     if not question.strip():
         raise ValueError("question must not be empty")
+    if top_k < 1 or top_k > 20:
+        raise ValueError("top_k must be between 1 and 20")
     return agent.invoke(
         {
             "question": question,

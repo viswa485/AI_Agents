@@ -39,6 +39,8 @@ def build_parser() -> argparse.ArgumentParser:
     ask.add_argument("question")
     ask.add_argument("--thread-id", default="local-research-session")
     ask.add_argument("--top-k", type=int, default=5)
+    ask.add_argument("--context-max-chars", type=int, default=3000)
+    ask.add_argument("--context-max-chunks", type=int, default=5)
 
     evaluate = commands.add_parser("evaluate", help="Evaluate retrieval against labelled JSONL")
     evaluate.add_argument("--dataset", type=Path, default=DEFAULT_EVAL)
@@ -54,8 +56,23 @@ def main() -> None:
         print(json.dumps(results, indent=2, ensure_ascii=False))
     elif args.command == "ask":
         agent = build_research_agent(engine)
-        result = ask_question(agent, args.question, thread_id=args.thread_id, top_k=args.top_k)
+        result = ask_question(
+            agent,
+            args.question,
+            thread_id=args.thread_id,
+            top_k=args.top_k,
+            context_max_chars=args.context_max_chars,
+            context_max_chunks=args.context_max_chunks,
+        )
         print(result["answer"])
+        stats = result.get("context_stats", {})
+        if stats:
+            print(
+                "\nContext budget: "
+                f"{stats['retained_chars']}/{stats['original_chars']} chars; "
+                f"~{stats['estimated_tokens']} tokens; "
+                f"{stats['retained_chunks']}/{stats['input_chunks']} chunks retained."
+            )
     elif args.command == "evaluate":
         dataset = load_eval_dataset(args.dataset)
         result = evaluate_retrieval(engine, dataset, k=args.k)

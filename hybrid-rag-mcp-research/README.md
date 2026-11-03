@@ -61,6 +61,7 @@ Evaluation: labelled query -> relevant chunk IDs -> Recall@K / MRR
 
 - Python 3.11+
 - Git
+- Default chunking for the bundled reference corpus: 1,800 characters with 120-character overlap; override with `--chunk-size` and `--chunk-overlap`.
 - Optional: model-capable CPU/GPU environment for Sentence Transformers models
 
 ~~~bash
@@ -119,7 +120,7 @@ Enable dense retrieval and cross-encoder reranking:
 hybrid-rag --corpus data/sample_corpus --dense --rerank search "How does reciprocal rank fusion combine rankings?"
 ~~~
 
-The BM25-only mode is sparse retrieval. The hybrid sparse+dense path is enabled with the --dense option.
+The BM25-only mode is sparse retrieval. The hybrid sparse+dense path is enabled with the --dense option. Chunk size and overlap can be changed with the global --chunk-size and --chunk-overlap options.
 
 ## Run the stateful workflow
 
@@ -138,10 +139,10 @@ Retrieved passages are deduplicated and pruned before critique/synthesis using a
 ## MCP server
 
 ~~~bash
-hybrid-rag-mcp --corpus data/sample_corpus
+hybrid-rag-mcp --corpus data/sample_corpus --dense --rerank
 ~~~
 
-The MCP server uses stdio, validates tool arguments with Pydantic v2 constraints, and exposes:
+The MCP server uses stdio, validates tool arguments with Pydantic v2 constraints, and exposes. It supports the same optional --dense and --rerank switches and chunking options as the CLI:
 
 | Tool | Purpose |
 |---|---|

@@ -1,0 +1,33 @@
+from pathlib import Path
+
+from hybrid_rag.agent import ask_question, build_research_agent
+from hybrid_rag.ingest import load_documents
+from hybrid_rag.retrieval import SearchEngine
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_research_agent_returns_source_linked_evidence() -> None:
+    engine = SearchEngine(load_documents(PROJECT_ROOT / "data" / "sample_corpus"))
+    agent = build_research_agent(engine)
+    result = ask_question(
+        agent,
+        "How does checkpointing work in a stateful agent workflow?",
+        thread_id="test-agent-session",
+        top_k=3,
+        min_hits=1,
+    )
+    assert "answer" in result
+    assert "source:" in result["answer"]
+    assert result["hits"]
+
+
+def test_agent_rejects_empty_question() -> None:
+    engine = SearchEngine(load_documents(PROJECT_ROOT / "data" / "sample_corpus"))
+    agent = build_research_agent(engine)
+    try:
+        ask_question(agent, "   ")
+    except ValueError as exc:
+        assert "question must not be empty" in str(exc)
+    else:
+        raise AssertionError("Expected ValueError for empty question")

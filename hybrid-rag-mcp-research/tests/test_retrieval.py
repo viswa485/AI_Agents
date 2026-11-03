@@ -41,6 +41,6 @@ def test_reference_evaluation_returns_defined_metrics() -> None:
     engine = SearchEngine(documents)
     dataset = load_eval_dataset(PROJECT_ROOT / "data" / "eval_dataset.jsonl")
     result = evaluate_retrieval(engine, dataset, k=3)
-    assert result["query_count"] == 6
+    assert result["query_count"] == 50
     assert 0.0 <= result["recall_at_k"] <= 1.0
     assert 0.0 <= result["mrr"] <= 1.0

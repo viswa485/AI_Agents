@@ -7,8 +7,8 @@ from pathlib import Path
 from hybrid_rag.agent import ask_question, build_research_agent
 from hybrid_rag.evaluation import evaluate_retrieval, load_eval_dataset
 from hybrid_rag.ingest import load_documents
-from hybrid_rag.review import run_reference_review
 from hybrid_rag.retrieval import SearchEngine
+from hybrid_rag.review import run_reference_review
 
 DEFAULT_CORPUS = Path("data/sample_corpus")
 DEFAULT_EVAL = Path("data/eval_dataset.jsonl")

@@ -36,7 +36,7 @@ def chunk_text(text: str, chunk_size: int = 900, overlap: int = 120) -> list[str
 
 def load_documents(
     corpus_dir: str | Path,
-    chunk_size: int = 900,
+    chunk_size: int = 1800,
     overlap: int = 120,
 ) -> list[Document]:
     """Load Markdown and text files recursively into stable document chunks."""

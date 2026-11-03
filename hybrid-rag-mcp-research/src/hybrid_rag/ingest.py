@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from hybrid_rag.models import Document
+from .models import Document
 
 
 SUPPORTED_SUFFIXES = {".md", ".txt"}

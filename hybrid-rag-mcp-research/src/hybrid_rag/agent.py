@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 from typing import Any, TypedDict
 
@@ -9,6 +10,8 @@ from langgraph.graph import END, START, StateGraph
 from hybrid_rag.context import prune_evidence
 from hybrid_rag.observability import trace_span
 from hybrid_rag.retrieval import SearchEngine
+
+logger = logging.getLogger(__name__)
 
 
 class ResearchState(TypedDict, total=False):
@@ -68,9 +71,9 @@ def _optional_llm_response(system_prompt: str, user_prompt: str) -> str | None:
                     ),
                 },
             )
-        except Exception:
-            # The model response must remain usable if optional tracing is unavailable.
-            pass
+        except (ImportError, AttributeError, RuntimeError, TypeError, ValueError) as exc:
+            # Telemetry must not invalidate a successful model response.
+            logger.debug("Skipped optional Langfuse token update: %s", exc)
 
     content = response.choices[0].message.content
     return content.strip() if content else None

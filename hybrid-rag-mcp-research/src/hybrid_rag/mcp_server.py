@@ -20,6 +20,8 @@ def create_server(corpus_dir: str | Path) -> FastMCP:
     @server.tool()
     def search_documents(query: str, top_k: int = 5) -> list[dict[str, Any]]:
         """Search the local indexed corpus with BM25 retrieval."""
+        if top_k < 1 or top_k > 20:
+            raise ValueError("top_k must be between 1 and 20")
         return [hit.to_dict() for hit in engine.search(query, top_k=top_k)]
 
     @server.tool()

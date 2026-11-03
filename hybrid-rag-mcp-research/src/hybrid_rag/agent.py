@@ -219,7 +219,7 @@ def ask_question(
     thread_id: str = "local-research-session",
     top_k: int = 5,
     min_hits: int = 2,
-    context_max_chars: int = 6000,
+    context_max_chars: int = 3000,
     context_max_chunks: int = 5,
 ) -> dict[str, Any]:
     if not question.strip():

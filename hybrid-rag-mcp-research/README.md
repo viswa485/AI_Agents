@@ -142,7 +142,7 @@ Retrieved passages are deduplicated and pruned before critique/synthesis using a
 hybrid-rag-mcp --corpus data/sample_corpus --dense --rerank
 ~~~
 
-The MCP server uses stdio, validates tool arguments with Pydantic v2 constraints, and exposes. It supports the same optional --dense and --rerank switches and chunking options as the CLI:
+The MCP server uses stdio, validates tool arguments with Pydantic v2 constraints, and exposes the following tools. It supports the same optional --dense and --rerank switches and chunking options as the CLI:
 
 | Tool | Purpose |
 |---|---|
@@ -188,7 +188,7 @@ hybrid-rag --corpus data/sample_corpus evaluate --dataset data/eval_dataset.json
 
 The JSON output contains query_count, Recall@K, Mean Reciprocal Rank (MRR), and per-query returned/relevant document identifiers.
 
-The starter set contains 50 labelled queries over the included synthetic corpus. It is useful for checking that the evaluation pipeline runs and for comparing code changes against the same fixed examples. It is not a representative production benchmark. Review and expand the labels before making general claims.
+The sample corpus contains 18 focused synthetic technical documents, including distractors. The reference set contains 50 labelled queries mapped to exact document chunks. It is useful for checking that the evaluation pipeline runs and for comparing code changes against the same fixed examples. It is not a representative production benchmark. Review and expand the labels before making general claims.
 
 For a defensible experiment, record the corpus revision, chunk size/overlap, embedding model, candidate count, top-K, reranker, query set version, latency, and compute cost. Compare BM25-only, dense-only, hybrid, and hybrid-plus-reranker configurations on the same held-out queries.
 
@@ -199,7 +199,7 @@ pytest
 ruff check src tests
 ~~~
 
-The tests cover chunking, RRF, BM25 search, metadata filtering, evaluation metrics, context pruning, and the stateful workflow. GitHub Actions runs the tests and Ruff checks when the subproject changes.
+The tests cover chunking, RRF, BM25 search, metadata filtering, the 50-query evaluation set, context pruning, batch review export, and checkpoint pause/resume. GitHub Actions runs the tests and Ruff checks when the subproject changes.
 
 ## Limitations and roadmap
 

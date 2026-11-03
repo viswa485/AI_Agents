@@ -12,12 +12,12 @@ A reproducible Python research project for hybrid retrieval, stateful LangGraph 
 - Weighted reciprocal-rank fusion for sparse/dense result lists.
 - Optional cross-encoder candidate reranking.
 - Metadata filtering and configurable top-K retrieval.
-- LangGraph workflow with retrieval, evidence selection, critic, one rewrite loop, and synthesis.
+- LangGraph workflow with retrieval, evidence selection, context pruning, critic, one rewrite loop, and synthesis.
 - In-memory thread checkpointing using a caller-supplied thread ID.
 - Optional LLM-backed query-rewriter, critic, and synthesis specialists through the OpenAI SDK.
 - MCP stdio server with search, research-question, and exact source-chunk tools.
-- Context pruning with an explicit character budget and token estimate.
-- Optional Langfuse spans with input/output capture disabled by default.
+- Context pruning with an explicit character budget and rough token estimate.
+- Optional Langfuse spans with prompt/input/output capture disabled by default and model token usage recorded when available.
 - Reference-based Recall@K and MRR evaluation over a 50-query JSONL starter set.
 - Automated tests and a GitHub Actions workflow.
 
@@ -44,20 +44,16 @@ Ingestion + overlapping chunks + stable source IDs
                  |
                  v
        LangGraph stateful workflow
-      retrieval -> evidence -> critic
-                |          |
-                |       rewrite once
-                |          |
-                +<---------+
-                 |
-                 v
-       context budget + synthesis
-                 |
-                 v
-     answer with source identifiers
+      retrieval -> evidence -> context prune
+                              |
+                              v
+                       critic -> rewrite once
+                              |
+                              v
+                          synthesis
 
 MCP tools: search_documents | ask_research_question | get_source_document
-Observability: optional Langfuse spans, without prompt/output capture by default
+Observability: Langfuse spans and model token usage when configured
 Evaluation: labelled query -> relevant chunk IDs -> Recall@K / MRR
 ~~~
 
@@ -83,7 +79,7 @@ python -m pip install -e ".[dense]"
 # OpenAI-compatible LLM calls for separate rewrite, critic, and synthesis nodes
 python -m pip install -e ".[llm]"
 
-# Langfuse observability
+# Langfuse observability (Python SDK v4)
 python -m pip install -e ".[observability]"
 
 # Install all optional runtime integrations and developer tools
@@ -101,7 +97,7 @@ export OPENAI_MODEL="gpt-4o-mini"
 # export OPENAI_BASE_URL="https://provider.example/v1"
 ~~~
 
-To enable Langfuse, configure its project keys using the environment-variable names supported by your Langfuse deployment. Do not commit secrets. Trace decorators disable function argument and result capture by default; inspect your project-level privacy and retention settings before enabling broader capture.
+To enable Langfuse, configure LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY, and LANGFUSE_BASE_URL (or the endpoint appropriate to your Langfuse deployment). Do not commit secrets. Trace decorators disable prompt/function argument and result capture by default. Token usage is attached to generation spans when the model provider returns usage metadata.
 
 ## Run a BM25 search
 
@@ -131,13 +127,13 @@ The BM25-only mode is sparse retrieval. The hybrid sparse+dense path is enabled 
 hybrid-rag --corpus data/sample_corpus ask "How should I evaluate a hybrid RAG pipeline?" --thread-id demo-session
 ~~~
 
-The workflow runs retrieval, evidence selection and a critic. When evidence is insufficient, it rewrites the query once and retries. It then produces a source-linked response. With OPENAI_API_KEY and the optional LLM dependency configured, query rewriting, critique, and synthesis use separate model calls. Without that configuration, deterministic local fallbacks run.
+The workflow runs retrieval, evidence selection, context pruning and a critic. When evidence is insufficient, it rewrites the query once and retries. It then produces a source-linked response. With OPENAI_API_KEY and the optional LLM dependency configured, query rewriting, critique, and synthesis use separate model calls. Without that configuration, deterministic local fallbacks run.
 
 The default in-memory checkpointer keeps thread state only for the current process lifetime. It does not provide durable cross-restart persistence.
 
 ## Context budgeting
 
-Retrieved chunks are pruned before synthesis using a configurable maximum number of chunks and character budget. A rough token estimate is reported as characters divided by four; this is a planning heuristic, not tokenizer-exact accounting. The intent is to constrain unnecessary context, not to claim a measured token-cost reduction.
+Retrieved passages are deduplicated and pruned before critique/synthesis using a configurable maximum number of chunks and character budget. A rough token estimate is reported as characters divided by four; this is a planning heuristic, not tokenizer-exact accounting. The intent is to constrain unnecessary context, not to claim a measured token-cost reduction.
 
 ## MCP server
 
@@ -153,7 +149,7 @@ The MCP server uses stdio and exposes:
 | ask_research_question | Invoke the stateful LangGraph workflow |
 | get_source_document | Return the exact indexed chunk for a source identifier |
 
-The tools are read-only. They do not execute shell commands, access arbitrary caller-supplied file paths, or modify external systems.
+The tools are read-only. They do not execute shell commands, access arbitrary caller-supplied file paths, or modify external systems. The maximum requested result count is capped at 20.
 
 Example client configuration (replace paths with absolute paths on your machine):
 
@@ -174,12 +170,7 @@ Example client configuration (replace paths with absolute paths on your machine)
 hybrid-rag --corpus data/sample_corpus evaluate --dataset data/eval_dataset.jsonl --k 5
 ~~~
 
-The JSON output contains:
-
-- query_count
-- Recall@K
-- Mean Reciprocal Rank (MRR)
-- Per-query returned and relevant document identifiers
+The JSON output contains query_count, Recall@K, Mean Reciprocal Rank (MRR), and per-query returned/relevant document identifiers.
 
 The starter set contains 50 labelled queries over the included synthetic corpus. It is useful for checking that the evaluation pipeline runs and for comparing code changes against the same fixed examples. It is not a representative production benchmark. Review and expand the labels before making general claims.
 
@@ -208,4 +199,4 @@ The tests cover chunking, RRF, BM25 search, metadata filtering, evaluation metri
 
 ## License
 
-No separate licence is asserted for this subproject. Check the parent repository's licence and the licences of third-party dependencies before redistribution.
+No separate licence is asserted by this subproject. Check the parent repository's licence and the licences of third-party dependencies before redistribution.

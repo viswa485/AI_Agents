@@ -133,7 +133,7 @@ The default in-memory checkpointer keeps thread state only for the current proce
 
 ## Context budgeting
 
-Retrieved passages are deduplicated and pruned before critique/synthesis using a configurable maximum number of chunks and character budget. A rough token estimate is reported as characters divided by four; this is a planning heuristic, not tokenizer-exact accounting. The intent is to constrain unnecessary context, not to claim a measured token-cost reduction.
+Retrieved passages are deduplicated and pruned before critique/synthesis using a configurable maximum number of chunks and character budget. The default workflow caps the evidence context at 3,000 characters and five chunks; the CLI and MCP tool expose budget controls. A rough token estimate is reported as characters divided by four; this is a planning heuristic, not tokenizer-exact accounting. The intent is to constrain unnecessary context, not to claim a measured token-cost reduction.
 
 ## MCP server
 
@@ -141,7 +141,7 @@ Retrieved passages are deduplicated and pruned before critique/synthesis using a
 hybrid-rag-mcp --corpus data/sample_corpus
 ~~~
 
-The MCP server uses stdio and exposes:
+The MCP server uses stdio, validates tool arguments with Pydantic v2 constraints, and exposes:
 
 | Tool | Purpose |
 |---|---|

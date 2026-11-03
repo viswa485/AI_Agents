@@ -12,6 +12,7 @@ dependencies = ["langgraph>=0.2.0", "mcp>=1.0.0", "rank-bm25>=0.2.2", "numpy>=1.
 
 [project.optional-dependencies]
 dense = ["sentence-transformers>=3.0"]
+llm = ["openai>=1.40"]
 observability = ["langfuse>=2.0"]
 sqlite = ["langgraph-checkpoint-sqlite>=2.0"]
 dev = ["pytest>=8.0", "ruff>=0.6"]
